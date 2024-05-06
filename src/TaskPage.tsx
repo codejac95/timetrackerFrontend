@@ -193,7 +193,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       <ul>
         {tasks.map((task) => (
           <li key={task.id} className='taskBox' >
-            <h2>{task.name}-{task.userId}</h2>
+            <h2>{task.name}-{task.username}</h2>
             <h3>({formatTotalTime(task.totalTime)})
             {!task.timerRunning ? (
               <button className='startBtn' onClick={() => startTimer(task.id)}>Starta timer</button>
