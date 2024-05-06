@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import TaskPage from './TaskPage.tsx';
 
@@ -9,6 +9,19 @@ function App() {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      setCurrentTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -61,42 +74,44 @@ function App() {
       setNewPassword('')
     }
   };
-const handleLogout = () => {
-  alert("Du loggas ut.")
-  setIsLoggedIn(false)
-  setSessionId('');
-  setUsername('')
-  setPassword('')
-}
+  const handleLogout = () => {
+    alert("Du loggas ut.")
+    setIsLoggedIn(false)
+    setSessionId('');
+    setUsername('')
+    setPassword('')
+  }
+
   return (
     <>
-    {isLoggedIn ? (
-      <>
-        <button onClick={handleLogout}>Logga ut</button>
-      <TaskPage sessionId={sessionId} username={username} />
-      </>
-    ) : (
-
-      <><div>
+    <div className="clock">{currentTime}</div>
+      {isLoggedIn ? (
+        <>
+          <br/><button onClick={handleLogout}>Logga ut</button>
+          <TaskPage sessionId={sessionId} username={username} />
+        </>
+      ) : (
+        <>
+          <div>
             <h1>Inloggning</h1>
             <form>
               <input type="text" placeholder="Användarnamn" value={username} onChange={(e) => setUsername(e.target.value)} />
               <input type="password" placeholder="Lösenord" value={password} onChange={(e) => setPassword(e.target.value)} />
               <button type="button" onClick={handleLogin}>Logga in</button>
             </form>
-          </div><div>
-              <h1>Skapa konto</h1>
-              <form>
-                <input type="text" placeholder='Användarnamn' value={newUsername} onChange={(evt) => setNewUsername(evt.target.value)} />
-                <input type="password" placeholder='Lösenord' value={newPassword} onChange={(evt) => setNewPassword(evt.target.value)} />
-                <button type="button" onClick={handleRegister}>Skapa konto</button>
-              </form>
-            </div></> 
-    )}
-    
+          </div>
+          <div>
+            <h1>Skapa konto</h1>
+            <form>
+              <input type="text" placeholder='Användarnamn' value={newUsername} onChange={(evt) => setNewUsername(evt.target.value)} />
+              <input type="password" placeholder='Lösenord' value={newPassword} onChange={(evt) => setNewPassword(evt.target.value)} />
+              <button type="button" onClick={handleRegister}>Skapa konto</button>
+            </form>
+          </div>
+        </>
+      )}
     </>
   );
 }
-
 
 export default App;
