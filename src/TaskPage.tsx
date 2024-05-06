@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 interface TaskPageProps {
-  sessionId: string;
+  userId: string;
   username: string;
+  isAdmin: boolean;
 }
 
-function TaskPage({sessionId, username}: TaskPageProps) {
+function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   const [newTaskName, setNewTaskName] = useState('');
   const [tasks, setTasks] = useState<any[]>([]);
   const [intervalIds, setIntervalIds] = useState<{ [taskId: string]: number }>({});
 
   const addTask = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/task/userId/${sessionId}`, {
+      const response = await fetch(`http://localhost:8080/task/userId/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: newTaskName, userId: sessionId }),
+        body: JSON.stringify({ name: newTaskName, userId: userId }),
       });
 
       if (response.ok) {
@@ -33,7 +34,7 @@ function TaskPage({sessionId, username}: TaskPageProps) {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch( `http://localhost:8080/task/userId/${sessionId}`, {
+      const response = await fetch( `http://localhost:8080/task/userId/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -50,20 +51,25 @@ function TaskPage({sessionId, username}: TaskPageProps) {
     }
   };
 
-  const adminFetchTasks = () => {
-    fetch(`http://localhost:8080/all-tasks`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => {
-      
-    })
-    .catch(error => {
-      
-    });
-  }
+  const adminFetchTasks = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/all-tasks`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setTasks(data);
+      } else {
+        console.error('Kunde inte hämta uppgifterna');
+      }
+    } catch (error) {
+      console.error('Ett fel uppstod:', error);
+    }
+  };
   
 
   const startTimer = async (taskId: string) => {
@@ -164,7 +170,11 @@ function TaskPage({sessionId, username}: TaskPageProps) {
   }
 
   useEffect(() => {
-    fetchTasks();
+    if(isAdmin) {
+      adminFetchTasks();
+    }else {
+       fetchTasks();
+    }
   }, []);
 
   return (
@@ -183,7 +193,7 @@ function TaskPage({sessionId, username}: TaskPageProps) {
       <ul>
         {tasks.map((task) => (
           <li key={task.id} className='taskBox' >
-            <h2>{task.name}</h2>
+            <h2>{task.name}-{task.userId}</h2>
             <h3>({formatTotalTime(task.totalTime)})
             {!task.timerRunning ? (
               <button className='startBtn' onClick={() => startTimer(task.id)}>Starta timer</button>

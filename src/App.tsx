@@ -5,11 +5,12 @@ import TaskPage from './TaskPage.tsx';
 function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [sessionId, setSessionId] = useState('');
+  const [userId, setUserId] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -23,61 +24,60 @@ function App() {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin = async () => {   
     try {
-      const response = await fetch('http://localhost:8080/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+        const response = await fetch('http://localhost:8080/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSessionId(data.sessionId);
-        setIsLoggedIn(true)
-        alert('Du loggades in.')
-      } else {
-        alert('Inloggning misslyckades.')
-        setUsername('')
-        setPassword('')
-      }
+        if (response.ok) {
+            const data = await response.json();
+            setUserId(data.id);
+            setIsLoggedIn(true)
+            setIsAdmin(data.admin)
+            alert('Du loggades in.')
+        } else {
+            alert(`Fel användarnamn eller lösenord`);
+            setUsername('');
+            setPassword('');
+        }
     } catch (error) {
-      alert('Inloggning misslyckades.')
-      setUsername('')
-      setPassword('')
+        alert('Inloggning misslyckades');
+        setUsername('');
+        setPassword('');
     }
-  };
+};
+
 
   const handleRegister = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/register/${newUsername}/${newPassword}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    const response = await fetch(`http://localhost:8080/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: newUsername, password: newPassword }),
       });
 
-      if (response.ok) {
+      const data = await response.text();
+      if (data==="success") {
         alert('Användaren '+(newUsername)+' skapades');
         setNewUsername('')
         setNewPassword('')
       } else {
-        alert('Användarnamnet är upptaget.');
+        alert(data);
         setNewUsername('')
         setNewPassword('')
       }
-    } catch (error) {
-      alert('Ett fel uppstod.');
-      setNewUsername('')
-      setNewPassword('')
-    }
   };
+
   const handleLogout = () => {
     alert("Du loggas ut.")
     setIsLoggedIn(false)
-    setSessionId('');
+    setUserId('');
     setUsername('')
     setPassword('')
   }
@@ -88,7 +88,7 @@ function App() {
       {isLoggedIn ? (
         <>
           <br/><button onClick={handleLogout}>Logga ut</button>
-          <TaskPage sessionId={sessionId} username={username} />
+          <TaskPage userId={userId} username={username} isAdmin={isAdmin} />
         </>
       ) : (
         <>
