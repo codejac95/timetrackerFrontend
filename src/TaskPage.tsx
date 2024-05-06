@@ -180,27 +180,34 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   return (
     <div className="task-page">
       <h2>Användare: {username}</h2>
-      <h1>Uppgifter:</h1>
-      <form onSubmit={(e) => { e.preventDefault(); addTask(); }}>
-        <input
-          type="text"
-          placeholder="Lägg till uppgift"
-          value={newTaskName}
-          onChange={(e) => setNewTaskName(e.target.value)}
-        />
-        <button type="submit">Lägg till</button>
-      </form>
+      {!isAdmin ? (
+        <div>
+          <h1>Uppgifter:</h1>
+          <form onSubmit={(e) => { e.preventDefault(); addTask(); }}>
+          <input
+            type="text"
+            placeholder="Lägg till uppgift"
+            value={newTaskName}
+            onChange={(e) => setNewTaskName(e.target.value)}
+          />
+          <button type="submit">Lägg till</button>
+        </form>
+      </div>
+      ) : null}
+    
       <ul>
         {tasks.map((task) => (
           <li key={task.id} className='taskBox' >
-            <h2>{task.name}-{task.username}</h2>
+            {isAdmin ? (<h2>Användare: {task.username}</h2>) : null}
+            {isAdmin ? (<h2>Uppgift: {task.name}</h2>) : <h2>{task.name}</h2>}
             <h3>({formatTotalTime(task.totalTime)})
-            {!task.timerRunning ? (
-              <button className='startBtn' onClick={() => startTimer(task.id)}>Starta timer</button>
-            ):(
-              <button className='pauseBtn' onClick={() => pauseTimer(task.id)}>Pausa timer</button>
-            )}     
-              <button onClick={() => removeTask(task.id)}>[X]</button></h3>
+              {!isAdmin && !task.timerRunning ? (
+                <button className='startBtn' onClick={() => startTimer(task.id)}>Starta timer</button>
+              ) : null}
+              {!isAdmin && task.timerRunning ? (
+                <button className='pauseBtn' onClick={() => pauseTimer(task.id)}>Pausa timer</button>            
+              ) : null}
+              {!isAdmin ? (<button onClick={() => removeTask(task.id)}>[X]</button>) : null}</h3>
           </li>
         ))}
       </ul>
