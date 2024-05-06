@@ -26,7 +26,7 @@ function App() {
 
   const handleLogin = async () => {   
     try {
-        const response = await fetch('http://localhost:8080/login', {
+        const response = await fetch('https://timetrackerbackend-5kvue.ondigitalocean.app/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ function App() {
 
 
   const handleRegister = async () => {
-    const response = await fetch(`http://localhost:8080/register`, {
+    const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

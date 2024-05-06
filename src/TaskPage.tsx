@@ -13,7 +13,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
 
   const addTask = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/task/userId/${userId}`, {
+      const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/userId/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch( `http://localhost:8080/task/userId/${userId}`, {
+      const response = await fetch( `https://timetrackerbackend-5kvue.ondigitalocean.app/task/userId/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
 
   const adminFetchTasks = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/all-tasks`, {
+      const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/all-tasks`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     try {
       const task = tasks.find(task => task.id === taskId);
       if (task && !task.timerRunning) {
-        const response = await fetch(`http://localhost:8080/task/start/${taskId}`, {
+        const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/start/${taskId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   
   const pauseTimer = async (taskId: string) => {
     try {
-        const response = await fetch(`http://localhost:8080/task/pause/${taskId}`, {
+        const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/pause/${taskId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   };
 
   const removeTask = (taskId : string) => {
-    fetch(`http://localhost:8080/task/taskId/${taskId}`, {
+    fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/taskId/${taskId}`, {
       method: 'DELETE'
     })
     .then(response => {
