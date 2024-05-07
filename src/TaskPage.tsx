@@ -10,10 +10,8 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   const [newTaskName, setNewTaskName] = useState('');
   const [tasks, setTasks] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [intervalIds, setIntervalIds] = useState<{ [taskId: string]: number }>({});
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserTasks, setSelectedUserTasks] = useState<any[]>([]);
-
 
   const addTask = async () => {
     try {
@@ -75,91 +73,119 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     }
   };
   
-
   const startTimer = async (taskId: string) => {
-    try {
-      const task = tasks.find(task => task.id === taskId);
-      if (task && !task.timerRunning) {
-        const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/start/${taskId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-  
-        if (response.ok) {
-          setTasks(prevTasks => {
-            return prevTasks.map(task => {
-              if (task.id === taskId) {
-                return { ...task, timerRunning: true }; 
-              }
-              return task;
-            });
-          });
-  
-          const id = setInterval(() => {
-            setTasks(prevTasks => {
-              return prevTasks.map(task => {
-                if (task.id === taskId) {
-                  return { ...task, totalTime: task.totalTime + 1 }; 
-                }
-                return task;
-              });
-            });
-          }, 1000);
-  
-          setIntervalIds(prevIds => ({ ...prevIds, [taskId]: id }));
-        } else {
-          console.error('Kunde inte starta timer för uppgift');
-        }
-      } else {
-        console.log('Timer is already running for this task');
-      }
-    } catch (error) {
-      console.error('Ett fel uppstod:', error);
-    }
-  };
-  
-  const pauseTimer = async (taskId: string) => {
-    try {
-        const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/pause/${taskId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.ok) {
-          const id = intervalIds[taskId];
-          if (id) {
-            
-            clearInterval(id);
-            const newIntervalIds = { ...intervalIds };
-            delete newIntervalIds[taskId];
-            setIntervalIds(newIntervalIds);
-
-            setTasks(prevTasks => {
-              return prevTasks.map(task => {
-                if (task.id === taskId) {
-                  return { ...task, timerRunning: false };
-                }
-                return task;
-              })
-             
-            })
-          }
-        } else {
-          console.error('Kunde inte pausa timer för uppgift');
-        }
-      } catch (error) {
-        console.error('Ett fel uppstod:', error);
-      }
+    const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/start/${taskId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });  
+    if (response.ok) {
+      console.log(taskId, 'startad');
+      fetchTasks();
     };
+  }
+
+
+  const pauseTimer = async (taskId: string) => {
+    const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/pause/${taskId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+      if (response.ok) {
+        console.log(taskId, 'pausad')
+        fetchTasks();
+      }
+  }
+
+  // const startTimer = async (taskId: string) => {
+  //   try {
+  //     const task = tasks.find(task => task.id === taskId);
+  //     if (task && !task.timerRunning) {
+  //       const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/start/${taskId}`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+  
+  //       if (response.ok) {
+  //         console.log(taskId, 'startad')
+  //         setTasks(prevTasks => {
+  //           return prevTasks.map(task => {
+  //             if (task.id === taskId) {
+  //               return { ...task, timerRunning: true }; 
+               
+  //             } fetchTasks();
+  //             return task;
+  //           });
+  //         });
+  
+  //         const id = setInterval(() => {
+  //           setTasks(prevTasks => {
+  //             return prevTasks.map(task => {
+  //               if (task.id === taskId) {
+  //                 return { ...task, totalTime: task.totalTime + 1 }; 
+  //               }
+  //               return task;
+  //             });
+  //           });
+  //         }, 1000);
+  
+  //         setIntervalIds(prevIds => ({ ...prevIds, [taskId]: id }));
+  //       } else {
+  //         console.error('Kunde inte starta timer för uppgift');
+  //       }
+  //     } else {
+  //       console.log('Timer is already running for this task');
+  //     }
+  //   } catch (error) {
+  //     console.error('Ett fel uppstod:', error);
+  //   }
+  // };
+  
+  // const pauseTimer = async (taskId: string) => {
+  //   try {
+  //       const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/pause/${taskId}`, {
+  //           method: 'POST',
+  //           headers: {
+  //               'Content-Type': 'application/json',
+  //           },
+  //       });
+  //       if (response.ok) {
+  //         const id = intervalIds[taskId];
+  //         if (id) {
+  //           console.log(taskId, 'pausad')
+  //           clearInterval(id);
+  //           const newIntervalIds = { ...intervalIds };
+  //           delete newIntervalIds[taskId];
+  //           setIntervalIds(newIntervalIds);
+
+  //           setTasks(prevTasks => {
+  //             return prevTasks.map(task => {
+  //               if (task.id === taskId) {
+  //                 return { ...task, timerRunning: false };
+  //               } 
+  //               return task;
+               
+  //             })
+             
+  //           })
+  //         }fetchTasks();
+  //       } else {
+  //         console.error('Kunde inte pausa timer för uppgift');
+  //       }
+  //     } catch (error) {
+  //       console.error('Ett fel uppstod:', error);
+  //     }
+  //   };
 
   const formatTotalTime = (totalTime: number) => {
     const hours = Math.floor(totalTime / 3600);
     const minutes = Math.floor((totalTime % 3600) / 60);
-    const seconds = totalTime % 60;
-    return `${hours}h:${minutes}m:${seconds}s`;
+    return `${hours}h:${minutes}m`;
   };
 
   const removeTask = (taskId : string) => {
@@ -206,7 +232,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     }else {
        fetchTasks();
     }
-  }, []);
+  },[]);
 
   useEffect(() => {
     if (selectedUserId) {
@@ -217,6 +243,16 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       setSelectedUserTasks([]);
     }
   }, [selectedUserId, tasks]);
+ 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchTasks();
+  //   }, 1000);
+  
+  //   return () => clearInterval(interval);
+  // }, []);
+  
+  
 
   return (
     <div className="task-page">
