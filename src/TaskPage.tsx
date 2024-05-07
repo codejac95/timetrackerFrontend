@@ -13,7 +13,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   const [intervalIds, setIntervalIds] = useState<{ [taskId: string]: number }>({});
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserTasks, setSelectedUserTasks] = useState<any[]>([]);
-  const [selectedUserTotalTime, setSelectedUserTotalTime] = useState<number>(0);
+
 
   const addTask = async () => {
     try {
@@ -197,7 +197,6 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     tasks.forEach(task => {
       totalTime += task.totalTime;
     });
-    setSelectedUserTotalTime(totalTime);
   };
 
   useEffect(() => {
