@@ -9,7 +9,11 @@ interface TaskPageProps {
 function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   const [newTaskName, setNewTaskName] = useState('');
   const [tasks, setTasks] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [intervalIds, setIntervalIds] = useState<{ [taskId: string]: number }>({});
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserTasks, setSelectedUserTasks] = useState<any[]>([]);
+  const [selectedUserTotalTime, setSelectedUserTotalTime] = useState<number>(0);
 
   const addTask = async () => {
     try {
@@ -168,49 +172,123 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       }
     })
   }
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/user`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        console.error('Kunde inte hämta användare');
+      }
+    } catch (error) {
+      console.error('Ett fel uppstod:', error);
+    }
+  };
+
+  const calculateTotalTime = () => {
+    let totalTime = 0;
+    tasks.forEach(task => {
+      totalTime += task.totalTime;
+    });
+    setSelectedUserTotalTime(totalTime);
+  };
 
   useEffect(() => {
     if(isAdmin) {
+      fetchUsers();
       adminFetchTasks();
     }else {
        fetchTasks();
     }
   }, []);
 
+  useEffect(() => {
+    if (selectedUserId) {
+      const userTasks = tasks.filter((task) => task.userId === selectedUserId);
+      setSelectedUserTasks(userTasks);
+      calculateTotalTime()
+    } else {
+      setSelectedUserTasks([]);
+    }
+  }, [selectedUserId, tasks]);
+
   return (
     <div className="task-page">
-      <h2>Användare: {username}</h2>
+      <p>Inloggad som: {username}</p>
       {!isAdmin ? (
         <div>
           <h1>Uppgifter:</h1>
-          <form onSubmit={(e) => { e.preventDefault(); addTask(); }}>
-          <input
-            type="text"
-            placeholder="Lägg till uppgift"
-            value={newTaskName}
-            onChange={(e) => setNewTaskName(e.target.value)}
-          />
-          <button type="submit">Lägg till</button>
-        </form>
-      </div>
-      ) : null}
-    
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addTask();
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Lägg till uppgift"
+              value={newTaskName}
+              onChange={(e) => setNewTaskName(e.target.value)}
+            />
+            <button type="submit">Lägg till</button>
+          </form>
+        </div>
+      ) : (
+        <div className="taskBox">
+          <h2>Alla användare:</h2>
+          <ul>
+            {users.map((user) => (
+              <li key={user.id} onClick={() => setSelectedUserId(user.id)}>
+                {user.username}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <ul>
-        {tasks.map((task) => (
-          <li key={task.id} className='taskBox' >
-            {isAdmin ? (<h2>Användare: {task.username}</h2>) : null}
-            {isAdmin ? (<h2>Uppgift: {task.name}</h2>) : <h2>{task.name}</h2>}
-            <h3>({formatTotalTime(task.totalTime)})
-              {!isAdmin && !task.timerRunning ? (
-                <button className='startBtn' onClick={() => startTimer(task.id)}>Starta timer</button>
-              ) : null}
-              {!isAdmin && task.timerRunning ? (
-                <button className='pauseBtn' onClick={() => pauseTimer(task.id)}>Pausa timer</button>            
-              ) : null}
-              {!isAdmin ? (<button onClick={() => removeTask(task.id)}>[X]</button>) : null}</h3>
-          </li>
-        ))}
+      {isAdmin && selectedUserId && (
+        <h2>Användare: {selectedUserTasks[0]?.username}</h2> 
+      )}
+        {isAdmin ? ( 
+          selectedUserTasks.map((task) => (
+            <li key={task.id} className="taskBox">
+              <h2>{task.name}</h2>
+              <h3> ({formatTotalTime(task.totalTime)}) </h3>      
+            </li>
+          ))
+        ) : (
+          tasks.map((task) => (
+            <li key={task.id} className="taskBox">
+              <h2>{task.name}</h2>
+              <h3>
+                ({formatTotalTime(task.totalTime)})
+                {!task.timerRunning ? (
+                  <button className="startBtn" onClick={() => startTimer(task.id)}>
+                    Starta timer
+                  </button>
+                ) : (
+                  <button className="pauseBtn" onClick={() => pauseTimer(task.id)}>
+                    Pausa timer
+                  </button>
+                )}
+                <button onClick={() => removeTask(task.id)}>X</button>
+              </h3>
+            </li>
+          ))
+        )}
       </ul>
+      {isAdmin && selectedUserId && (
+        <p>
+          Total tid: {formatTotalTime(selectedUserTasks.reduce((total, task) => total + task.totalTime, 0))}
+        </p>
+      )}
     </div>
   );
 }

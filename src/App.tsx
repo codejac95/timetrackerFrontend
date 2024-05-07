@@ -24,6 +24,19 @@ function App() {
     return () => clearInterval(intervalId);
   }, []);
 
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) {
+      const storedUserId = localStorage.getItem('userId');
+      const storedUsername = localStorage.getItem('username');
+      const storedIsAdmin = localStorage.getItem('isAdmin') === 'true';
+      setUserId(storedUserId ?? '');
+      setUsername(storedUsername ?? '');
+      setIsAdmin(storedIsAdmin);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   const handleLogin = async () => {   
     try {
         const response = await fetch('https://timetrackerbackend-5kvue.ondigitalocean.app/login', {
@@ -39,6 +52,11 @@ function App() {
             setUserId(data.id);
             setIsLoggedIn(true)
             setIsAdmin(data.admin)
+            localStorage.setItem('isLoggedIn','true')
+            localStorage.setItem('userId', data.id);
+            localStorage.setItem('username', username);
+            localStorage.setItem('isAdmin', data.admin ? 'true' : 'false');
+
             alert('Du loggades in.')
         } else {
             alert(`Fel användarnamn eller lösenord`);
@@ -80,11 +98,15 @@ function App() {
     setUserId('');
     setUsername('')
     setPassword('')
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('isAdmin');
   }
 
   return (
     <>
-    <div className="clock">{currentTime}</div>
+      <div className="clock">{currentTime}</div>
       {isLoggedIn ? (
         <>
           <br/><button onClick={handleLogout}>Logga ut</button>
@@ -112,6 +134,6 @@ function App() {
       )}
     </>
   );
-}
+  }
 
 export default App;
