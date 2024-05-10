@@ -81,7 +81,6 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       },
     });  
     if (response.ok) {
-      console.log(taskId, 'startad');
       fetchTasks();
     };
   }
@@ -94,12 +93,18 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       },
     });
       if (response.ok) {
-        console.log(taskId, 'pausad')
         fetchTasks();
       }
   }
 
   const formatTotalTime = (totalTime: number) => {
+    const hours = Math.floor(totalTime / 3600);
+    const minutes = Math.floor((totalTime % 3600) / 60);
+    const seconds = Math.floor(totalTime % 60);
+    return `${hours}h:${minutes}m:${seconds}`;
+  };
+
+  const formatTime = (totalTime: number) => {
     const hours = Math.floor(totalTime / 3600);
     const minutes = Math.floor((totalTime % 3600) / 60);
     return `${hours}h:${minutes}m`;
@@ -137,9 +142,10 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
 
   const calculateTotalTime = () => {
     let totalTime = 0;
-    tasks.forEach(task => {
+    selectedUserTasks.forEach(task => {
       totalTime += task.totalTime;
     });
+    return totalTime;
   };
 
   useEffect(() => {
@@ -149,13 +155,16 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     } else {
         fetchTasks();
     }
+
     const interval = setInterval(() => {
         if (!isAdmin) {
             fetchTasks();
         } else {
+            fetchUsers()
             adminFetchTasks();
+            calculateTotalTime()
         }
-    }, 60000);
+    }, 1000);
 
     return () => clearInterval(interval);
 }, [isAdmin]);
@@ -164,12 +173,11 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
     if (selectedUserId) {
       const userTasks = tasks.filter((task) => task.userId === selectedUserId);
       setSelectedUserTasks(userTasks);
-      calculateTotalTime()
     } else {
       setSelectedUserTasks([]);
     }
   }, [selectedUserId, tasks]);
- 
+
   return (
     <div className="task-page">
       <p>Inloggad som: {username}</p>
@@ -205,7 +213,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       )}
       <ul>
       {isAdmin && selectedUserId && (
-        <h2>Användare: {selectedUserTasks[0]?.username}</h2> 
+    <h2>Användare: {users.find(user => user.id === selectedUserId).username}</h2>
       )}
         {isAdmin ? ( 
           selectedUserTasks.map((task) => (
@@ -219,7 +227,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
             <li key={task.id} className="taskBox">
               <h2>{task.name}</h2>
               <h3>
-                ({formatTotalTime(task.totalTime)})
+                ({formatTime(task.totalTime)})
                 {!task.timerRunning ? (
                   <button className="startBtn" onClick={() => startTimer(task.id)}>
                     Starta timer
@@ -237,7 +245,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       </ul>
       {isAdmin && selectedUserId && (
         <p>
-          Total tid: {formatTotalTime(selectedUserTasks.reduce((total, task) => total + task.totalTime, 0))}
+         Total tid: {formatTotalTime(calculateTotalTime())}
         </p>
       )}
     </div>

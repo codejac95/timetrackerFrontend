@@ -70,7 +70,6 @@ function App() {
     }
 };
 
-
   const handleRegister = async () => {
     const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/register`, {
       method: 'POST',
@@ -93,15 +92,31 @@ function App() {
   };
 
   const handleLogout = () => {
-    alert("Du loggas ut.")
-    setIsLoggedIn(false)
-    setUserId('');
-    setUsername('')
-    setPassword('')
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('isAdmin');
+    fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/logout/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (response.ok) {
+        alert("Du loggas ut.");
+        setIsLoggedIn(false);
+        setUserId('');
+        setUsername('');
+        setPassword('');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('isAdmin');
+      } else {
+        alert("Det gick inte att logga ut. Försök igen senare.");
+      }
+    })
+    .catch(error => {
+      console.error('Något gick fel:', error);
+      alert("Ett fel uppstod. Vänligen försök igen senare.");
+    });
   }
 
   return (
