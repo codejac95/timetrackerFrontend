@@ -71,10 +71,18 @@ function App() {
 };
 
   const handleRegister = async () => {
-    if (username.trim() === '' || password.trim() === '') {
-      alert('Användarnamn och lösenord får inte vara tomt eller innehålla mellanslag.'); 
-      setNewUsername('')
-      setNewPassword('')
+    const registerRegex = /^\S*$/; 
+
+    if (!newUsername.trim() || !newPassword.trim()) {
+      alert('Användarnamn och lösenord får inte vara tomt.'); 
+      setNewUsername('');
+      setNewPassword('');
+      return;
+    }
+    if (!registerRegex.test(newUsername) || !registerRegex.test(newPassword)) {
+      alert('Användarnamnet eller lösenordet får inte innehålla mellanslag.');
+      setNewUsername('');
+      setNewPassword('');
       return;
     }
   

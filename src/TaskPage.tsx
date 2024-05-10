@@ -124,6 +124,18 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       }
     })
   }
+
+  const removeUser = (userId : string) => {
+    fetch (`https://timetrackerbackend-5kvue.ondigitalocean.app/user/${userId}`, {
+      method: 'DELETE'  
+    })
+      .then(response => {
+        if(response.ok) {
+          setUsers(prevUsers => prevUsers.filter(user => user.id !== userId))
+        }
+      })
+    }
+      
   const fetchUsers = async () => {
     try {
       const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/user`, {
@@ -210,6 +222,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
             {users.map((user) => (
               <li key={user.id} onClick={() => setSelectedUserId(user.id)}>
                 {user.username}
+                <button onClick={() => removeUser(user.id)}>X</button>
               </li>
             ))}
           </ul>
@@ -217,7 +230,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
       )}
       <ul>
       {isAdmin && selectedUserId && (
-    <h2>Användare: {users.find(user => user.id === selectedUserId).username}</h2>
+    <h2>Användare: {users.find(user => user.id === selectedUserId)?.username}</h2>
       )}
         {isAdmin ? ( 
           selectedUserTasks.map((task) => (
