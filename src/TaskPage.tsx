@@ -14,6 +14,10 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   const [selectedUserTasks, setSelectedUserTasks] = useState<any[]>([]);
 
   const addTask = async () => {
+    if (!newTaskName.trim()) {
+      alert('Uppgiften måste ha ett namn.');
+      return;
+    }
     try {
       const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/task/userId/${userId}`, {
         method: 'POST',

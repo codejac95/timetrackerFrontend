@@ -71,6 +71,13 @@ function App() {
 };
 
   const handleRegister = async () => {
+    if (username.trim() === '' || password.trim() === '') {
+      alert('Användarnamn och lösenord får inte vara tomt eller innehålla mellanslag.'); 
+      setNewUsername('')
+      setNewPassword('')
+      return;
+    }
+  
     const response = await fetch(`https://timetrackerbackend-5kvue.ondigitalocean.app/register`, {
       method: 'POST',
       headers: {
