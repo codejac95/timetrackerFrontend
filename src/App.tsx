@@ -146,18 +146,44 @@ function App() {
         <>
           <div>
             <h1>Inloggning</h1>
-            <form>
-              <input type="text" placeholder="Användarnamn" value={username} onChange={(e) => setUsername(e.target.value)} />
-              <input type="password" placeholder="Lösenord" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button type="button" onClick={handleLogin}>Logga in</button>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}>
+              <input 
+              type="text" 
+              placeholder="Användarnamn" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} />
+
+              <input 
+              type="password" 
+              placeholder="Lösenord" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} />
+
+              <button type="submit">Logga in</button>
             </form>
           </div>
+
           <div>
             <h1>Skapa konto</h1>
-            <form>
-              <input type="text" placeholder='Användarnamn' value={newUsername} onChange={(evt) => setNewUsername(evt.target.value)} />
-              <input type="password" placeholder='Lösenord' value={newPassword} onChange={(evt) => setNewPassword(evt.target.value)} />
-              <button type="button" onClick={handleRegister}>Skapa konto</button>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleRegister();
+            }}>
+              <input 
+              type="text" 
+              placeholder='Användarnamn' 
+              value={newUsername} 
+              onChange={(e) => setNewUsername(e.target.value)} />
+
+              <input 
+              type="password" 
+              placeholder='Lösenord' 
+              value={newPassword} 
+              onChange={(e) => setNewPassword(e.target.value)} />
+              <button type="submit">Skapa konto</button>
             </form>
           </div>
         </>
