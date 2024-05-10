@@ -219,7 +219,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
         <div className="taskBox">
           <h2>Alla användare:</h2>
           <ul>
-            {users.map((user) => (
+            {users.filter(user => !user.admin).map((user) => (
               <li key={user.id} onClick={() => setSelectedUserId(user.id)}>
                 {user.username}
                 <button onClick={() => removeUser(user.id)}>X</button>
@@ -227,6 +227,7 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
             ))}
           </ul>
         </div>
+
       )}
       <ul>
       {isAdmin && selectedUserId && (
