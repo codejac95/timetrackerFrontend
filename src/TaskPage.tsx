@@ -165,13 +165,6 @@ function TaskPage({userId, username, isAdmin}: TaskPageProps) {
   };
 
   useEffect(() => {
-    if (isAdmin) {
-        fetchUsers();
-        adminFetchTasks();
-    } else {
-        fetchTasks();
-    }
-
     const interval = setInterval(() => {
         if (!isAdmin) {
             fetchTasks();

@@ -11,6 +11,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -56,7 +57,6 @@ function App() {
             localStorage.setItem('userId', data.id);
             localStorage.setItem('username', username);
             localStorage.setItem('isAdmin', data.admin ? 'true' : 'false');
-
             alert('Du loggades in.')
         } else {
             alert(`Fel användarnamn eller lösenord`);
@@ -98,11 +98,12 @@ function App() {
       if (data==="success") {
         alert('Användaren '+(newUsername)+' skapades');
         setNewUsername('')
-        setNewPassword('')
+        setNewPassword('');
+        setShowRegisterForm(false);
       } else {
         alert(data);
-        setNewUsername('')
-        setNewPassword('')
+        setNewUsername('');
+        setNewPassword('');
       }
   };
 
@@ -125,12 +126,12 @@ function App() {
         localStorage.removeItem('username');
         localStorage.removeItem('isAdmin');
       } else {
-        alert("Det gick inte att logga ut. Försök igen senare.");
+        alert("Ett fel uppstod..");
       }
     })
     .catch(error => {
-      console.error('Något gick fel:', error);
-      alert("Ett fel uppstod. Vänligen försök igen senare.");
+      console.error('Ett fel uppstod:', error);
+      alert("Ett fel uppstod..");
     });
   }
 
@@ -144,52 +145,58 @@ function App() {
         </>
       ) : (
         <>
-          <div>
-            <h1>Inloggning</h1>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleLogin();
-            }}>
-              <input 
-              type="text" 
-              placeholder="Användarnamn" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} />
+          {!showRegisterForm ? ( 
+            <div>
+              <h1>Inloggning</h1>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}>
+                <input 
+                type="text" 
+                placeholder="Användarnamn" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} />
 
-              <input 
-              type="password" 
-              placeholder="Lösenord" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} />
+                <input 
+                type="password" 
+                placeholder="Lösenord" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} />
 
-              <button type="submit">Logga in</button>
-            </form>
-          </div>
+                <button type="submit">Logga in</button>
+              </form>
+              <br />
+              <p onClick={() => setShowRegisterForm(true)}style= {{textDecoration: 'underline'}}>Registrera dig här</p>
+            </div>
+          ) : (
+            <div>
+              <h1>Registrering</h1>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleRegister();
+              }}>
+                <input 
+                type="text" 
+                placeholder='Användarnamn' 
+                value={newUsername} 
+                onChange={(e) => setNewUsername(e.target.value)} />
 
-          <div>
-            <h1>Skapa konto</h1>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleRegister();
-            }}>
-              <input 
-              type="text" 
-              placeholder='Användarnamn' 
-              value={newUsername} 
-              onChange={(e) => setNewUsername(e.target.value)} />
-
-              <input 
-              type="password" 
-              placeholder='Lösenord' 
-              value={newPassword} 
-              onChange={(e) => setNewPassword(e.target.value)} />
-              <button type="submit">Skapa konto</button>
-            </form>
-          </div>
+                <input 
+                type="password" 
+                placeholder='Lösenord' 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)} />
+                <button type="submit">Registrera konto</button>
+              </form>
+              <br />
+              <p onClick={() => setShowRegisterForm(false)} style= {{textDecoration: 'underline'}}>Tillbaka till inloggning</p>
+            </div>
+          )}
         </>
       )}
     </>
   );
-  }
+}
 
 export default App;
